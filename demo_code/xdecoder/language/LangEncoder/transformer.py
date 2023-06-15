@@ -11,6 +11,13 @@ from torch import nn
 from timm.models.layers import DropPath, trunc_normal_
 
 from .registry import register_lang_encoder
+import os
+import sys
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+target_dir = os.path.dirname(os.path.dirname(os.path.dirname(current_dir)))
+#target_dir = os.path.join(target_dir, 'utils')
+sys.path.append(target_dir)
 from utils.distributed import is_main_process
 from utils.model import register_norm_module
 

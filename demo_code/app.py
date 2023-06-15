@@ -28,7 +28,7 @@ from tasks import *
 
 def parse_option():
     parser = argparse.ArgumentParser('SEEM Demo', add_help=False)
-    parser.add_argument('--conf_files', default="configs/seem/seem_focall_lang.yaml", metavar="FILE", help='path to config file', )
+    parser.add_argument('--conf_files', default="configs/seem/seem_focalt_lang.yaml", metavar="FILE", help='path to config file', )
     args = parser.parse_args()
 
     return args
@@ -130,12 +130,14 @@ Instructions:
 
 article = "The Demo is Run on SEEM-Tiny."
 inputs = [ImageMask(label="[Stroke] Draw on Image",type="pil"), gr.inputs.CheckboxGroup(choices=["Stroke", "Example", "Text", "Audio", "Video", "Panoptic"], type="value", label="Interative Mode"), ImageMask(label="[Example] Draw on Referring Image",type="pil"), gr.Textbox(label="[Text] Referring Text"), gr.Audio(label="[Audio] Referring Audio", source="microphone", type="filepath"), gr.Video(label="[Video] Referring Video Segmentation",format="mp4",interactive=True)]
-gr.Interface(
+interface = gr.Interface(
     fn=inference,
     inputs=inputs,
     outputs=[
-        gr.outputs.Image(
-        type="pil",
+        gr.Image(
+#        type="pil",
+        height=240,
+        tool="compose",
         label="Segmentation Results (COCO classes as label)"),
         gr.Video(
         label="Video Segmentation Results (COCO classes as label)", format="mp4"
@@ -153,4 +155,6 @@ gr.Interface(
     article=article,
     allow_flagging='never',
     cache_examples=False,
-).launch()
+    )
+
+interface.launch()

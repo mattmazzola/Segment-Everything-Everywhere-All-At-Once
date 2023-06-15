@@ -542,7 +542,7 @@ class Visualizer:
             colors = None
         self.overlay_instances(masks=masks, labels=labels, assigned_colors=colors, alpha=alpha)
 
-        return self.output
+        return self.output, masks
 
     draw_panoptic_seg_predictions = draw_panoptic_seg  # backward compatibility
 
