@@ -110,15 +110,12 @@ def interactive_infer_image(model, audio_model, image, tasks, refimg=None, reftx
         results = model.model.evaluate(batch_inputs)
         pano_seg = results[-1]['panoptic_seg'][0]
         pano_seg_info = results[-1]['panoptic_seg'][1]
-        demo, masks = visual.draw_panoptic_seg(pano_seg.cpu(), pano_seg_info) # rgb Image
+        demo, seg = visual.draw_panoptic_seg(pano_seg.cpu(), pano_seg_info) # rgb Image
         res = demo.get_image()
-        #return Image.fromarray(res), None
-        res = np.concatenate([res, np.zeros((res.shape[0], res.shape[1], 1), dtype=res.dtype) * 255], axis=-1)
-        for index, mask in enumerate(masks):
-            mask_u8 = mask.astype(np.uint8)
-            mask_u8 *= (index + 1) #1-based index. 0 means nothing-ness
-            res[:,:,3] += mask_u8
-        return res, None        
+        seg_expanded = np.expand_dims(seg, axis=-1)
+        res = np.concatenate([res, seg_expanded], axis=-1)
+        #res[:,:,3] = 255
+        return Image.fromarray(res), None
     else:
         results,image_size,extra = model.model.evaluate_demo(batch_inputs)
 
