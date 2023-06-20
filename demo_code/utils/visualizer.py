@@ -540,6 +540,7 @@ class Visualizer:
             ]
         except AttributeError:
             colors = None
+        print(f"interactive.py, draw_panoptic_seg color = {colors}")            
         self.overlay_instances(masks=masks, labels=labels, assigned_colors=colors, alpha=alpha)
 
         return self.output, pred._seg.numpy().astype(np.uint8)
@@ -737,6 +738,7 @@ class Visualizer:
 
                 height_ratio = (y1 - y0) / np.sqrt(self.output.height * self.output.width)
                 lighter_color = self._change_color_brightness(color, brightness_factor=0.7)
+                print(f"interactive.py, overlay_instances lighter_color = {lighter_color}")                            
                 font_size = (
                     np.clip((height_ratio - 0.02) / 0.08 + 1, 1.2, 2)
                     * 0.5
@@ -886,6 +888,7 @@ class Visualizer:
             font_size = self._default_font_size
 
         # since the text background is dark, we don't want the text to be dark
+        print(f"interactive.py, draw_text color = {color}")
         color = np.maximum(list(mplc.to_rgb(color)), 0.2)
         color[np.argmax(color)] = max(0.8, np.max(color))
 
