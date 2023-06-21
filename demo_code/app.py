@@ -26,9 +26,11 @@ from utils.constants import COCO_PANOPTIC_CLASSES
 
 from tasks import *
 
+current_dir = os.path.dirname(os.path.abspath(__file__)) #in case app.py is run from a different working dir
+
 def parse_option():
     parser = argparse.ArgumentParser('SEEM Demo', add_help=False)
-    parser.add_argument('--conf_files', default="configs/seem/seem_focalt_lang.yaml", metavar="FILE", help='path to config file', )
+    parser.add_argument('--conf_files', default=os.path.join(current_dir, "configs/seem/seem_focalt_lang.yaml"), metavar="FILE", help='path to config file', )
     args = parser.parse_args()
 
     return args
@@ -99,62 +101,62 @@ class Video(gr.components.Video):
     def preprocess(self, x):
         return super().preprocess(x)
 
+if __name__ == "__main__":
+    '''
+    launch app
+    '''
+    title = "SEEM: Segment Everything Everywhere All At Once"
+    description = """
+    <div style="text-align: center; font-weight: bold;">
+        <span style="font-size: 18px" id="paper-info">
+            [<a href="https://github.com/UX-Decoder/Segment-Everything-Everywhere-All-At-Once" target="_blank">GitHub</a>]
+            [<a href="https://arxiv.org/pdf/2304.06718.pdf" target="_blank">arXiv</a>]
+        </span>
+    </div>
+    <div style="text-align: left; font-weight: bold;">
+        <br>
+        &#x1F32A Note: The current model is run on <span style="color:blue;">SEEM {}</span>, for <span style="color:blue;">best performance</span> refer to <a href="https://huggingface.co/spaces/xdecoder/SEEM" target="_blank"><span style="color:red;">our demo</span></a>.
+        </p>
+    </div>
+    """.format(cur_model)
 
-'''
-launch app
-'''
-title = "SEEM: Segment Everything Everywhere All At Once"
-description = """
-<div style="text-align: center; font-weight: bold;">
-    <span style="font-size: 18px" id="paper-info">
-        [<a href="https://github.com/UX-Decoder/Segment-Everything-Everywhere-All-At-Once" target="_blank">GitHub</a>]
-        [<a href="https://arxiv.org/pdf/2304.06718.pdf" target="_blank">arXiv</a>]
-    </span>
-</div>
-<div style="text-align: left; font-weight: bold;">
-    <br>
-    &#x1F32A Note: The current model is run on <span style="color:blue;">SEEM {}</span>, for <span style="color:blue;">best performance</span> refer to <a href="https://huggingface.co/spaces/xdecoder/SEEM" target="_blank"><span style="color:red;">our demo</span></a>.
-    </p>
-</div>
-""".format(cur_model)
+    '''Usage
+    Instructions:
+    &#x1F388 Try our default examples first (Sketch is not automatically drawed on input and example image);
+    &#x1F388 For video demo, it takes about 30-60s to process, please refresh if you meet an error on uploading;
+    &#x1F388 Upload an image/video (If you want to use referred region of another image please check "Example" and upload another image in referring image panel);
+    &#x1F388 Select at least one type of prompt of your choice (If you want to use referred region of another image please check "Example");
+    &#x1F388 Remember to provide the actual prompt for each promt type you select, otherwise you will meet an error (e.g., rember to draw on the referring image);
+    &#x1F388 Our model by default support the vocabulary of COCO 133 categories, others will be classified to 'others' or misclassifed.
+    '''
 
-'''Usage
-Instructions:
-&#x1F388 Try our default examples first (Sketch is not automatically drawed on input and example image);
-&#x1F388 For video demo, it takes about 30-60s to process, please refresh if you meet an error on uploading;
-&#x1F388 Upload an image/video (If you want to use referred region of another image please check "Example" and upload another image in referring image panel);
-&#x1F388 Select at least one type of prompt of your choice (If you want to use referred region of another image please check "Example");
-&#x1F388 Remember to provide the actual prompt for each promt type you select, otherwise you will meet an error (e.g., rember to draw on the referring image);
-&#x1F388 Our model by default support the vocabulary of COCO 133 categories, others will be classified to 'others' or misclassifed.
-'''
+    article = "The Demo is Run on SEEM-Tiny."
+    inputs = [ImageMask(label="[Stroke] Draw on Image",type="pil"), gr.inputs.CheckboxGroup(choices=["Stroke", "Example", "Text", "Audio", "Video", "Panoptic"], type="value", label="Interative Mode"), ImageMask(label="[Example] Draw on Referring Image",type="pil"), gr.Textbox(label="[Text] Referring Text"), gr.Audio(label="[Audio] Referring Audio", source="microphone", type="filepath"), gr.Video(label="[Video] Referring Video Segmentation",format="mp4",interactive=True)]
+    interface = gr.Interface(
+        fn=inference,
+        inputs=inputs,
+        outputs=[
+            gr.Image(
+    #        type="pil",
+            height=240,
+            tool="compose",
+            label="Segmentation Results (COCO classes as label)"),
+            gr.Video(
+            label="Video Segmentation Results (COCO classes as label)", format="mp4"
+            ),
+        ],
+        examples=[
+        ["examples/corgi1.webp", ["Text"], "examples/corgi2.jpg", "The corgi.", None, None],
+        ["examples/river1.png", ["Text", "Audio"], "examples/river2.png", "The green trees.", "examples/river1.wav", None],
+        ["examples/zebras1.jpg", ["Example"], "examples/zebras2.jpg", "", None, None],
+        ["examples/fries1.png", ["Example"], "examples/fries2.png", "", None, None],
+        ["examples/placeholder.png", ["Video"], "examples/ref_vase.JPG", "", None, "examples/vasedeck.mp4"],
+        ],
+        title=title,
+        description=description,
+        article=article,
+        allow_flagging='never',
+        cache_examples=False,
+        )
 
-article = "The Demo is Run on SEEM-Tiny."
-inputs = [ImageMask(label="[Stroke] Draw on Image",type="pil"), gr.inputs.CheckboxGroup(choices=["Stroke", "Example", "Text", "Audio", "Video", "Panoptic"], type="value", label="Interative Mode"), ImageMask(label="[Example] Draw on Referring Image",type="pil"), gr.Textbox(label="[Text] Referring Text"), gr.Audio(label="[Audio] Referring Audio", source="microphone", type="filepath"), gr.Video(label="[Video] Referring Video Segmentation",format="mp4",interactive=True)]
-interface = gr.Interface(
-    fn=inference,
-    inputs=inputs,
-    outputs=[
-        gr.Image(
-#        type="pil",
-        height=240,
-        tool="compose",
-        label="Segmentation Results (COCO classes as label)"),
-        gr.Video(
-        label="Video Segmentation Results (COCO classes as label)", format="mp4"
-        ),
-    ],
-    examples=[
-    ["examples/corgi1.webp", ["Text"], "examples/corgi2.jpg", "The corgi.", None, None],
-    ["examples/river1.png", ["Text", "Audio"], "examples/river2.png", "The green trees.", "examples/river1.wav", None],
-    ["examples/zebras1.jpg", ["Example"], "examples/zebras2.jpg", "", None, None],
-    ["examples/fries1.png", ["Example"], "examples/fries2.png", "", None, None],
-    ["examples/placeholder.png", ["Video"], "examples/ref_vase.JPG", "", None, "examples/vasedeck.mp4"],
-    ],
-    title=title,
-    description=description,
-    article=article,
-    allow_flagging='never',
-    cache_examples=False,
-    )
-
-interface.launch()
+    interface.launch()
