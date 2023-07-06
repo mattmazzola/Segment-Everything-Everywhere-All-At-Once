@@ -1215,6 +1215,7 @@ class Visualizer:
         modified_lightness = 0.0 if modified_lightness < 0.0 else modified_lightness
         modified_lightness = 1.0 if modified_lightness > 1.0 else modified_lightness
         modified_color = colorsys.hls_to_rgb(polygon_color[0], modified_lightness, polygon_color[2])
+        modified_color = tuple(max(0, min(1, c)) for c in modified_color)    #there are times this is violated.
         return modified_color
 
     def _convert_boxes(self, boxes):

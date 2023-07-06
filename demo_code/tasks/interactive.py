@@ -115,7 +115,15 @@ def interactive_infer_image(model, audio_model, image, tasks, refimg=None, reftx
         seg_expanded = np.expand_dims(seg, axis=-1)
         res = np.concatenate([res, seg_expanded], axis=-1)
         #res[:,:,3] = 255
-        return Image.fromarray(res), None
+        lables = {}
+        for sinfo in pano_seg_info:
+            category_idx = sinfo["category_id"]
+            lable = metadata.stuff_classes[category_idx].replace('-other','').replace('-merged','')
+            id = sinfo['id']
+            print(f"id={id}, label={lable}")
+            lables[id] = lable
+        
+        return Image.fromarray(res), lables
     else:
         results,image_size,extra = model.model.evaluate_demo(batch_inputs)
 
