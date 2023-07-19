@@ -192,8 +192,15 @@ def interactive_infer_image(model, audio_model, image, tasks, refimg=None, reftx
         demo = visual.draw_binary_mask(mask, color=colors_list[pred_class[0]%133], text=out_txt)
     res = demo.get_image()
     torch.cuda.empty_cache()
+
+    #it seems only 1 class is segmented if task is Stroke. The following only works under this assumption
+    assert (pred_masks_pos.shape[0] == len(texts))
+    seg_expanded = np.expand_dims((pred_masks_pos[0]).astype(np.uint8), axis=-1)
+    res = np.concatenate([res, seg_expanded], axis=-1)
+    lables = {1: texts[0]} 
+        
     # return Image.fromarray(res), stroke_inimg, stroke_refimg
-    return Image.fromarray(res), None
+    return Image.fromarray(res), lables
 
 def interactive_infer_video(model, audio_model, image, tasks, refimg=None, reftxt=None, audio_pth=None, video_pth=None):
     if 'Video' in tasks:
