@@ -86,6 +86,8 @@ class ImageMask(gr.components.Image):
         super().__init__(source="upload", tool="sketch", interactive=True, **kwargs)
 
     def preprocess(self, x):
+        if (x['mask'] is None):
+            x['mask'] = str(x['image']) #not sure why mask is None sometimes, this prevents preprocess crashing
         return super().preprocess(x)
 
 class Video(gr.components.Video):
