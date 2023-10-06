@@ -89,8 +89,12 @@ class ImageMask(gr.components.Image):
         if isinstance(x, str):
             x = {'image': x, 'mask': x}
         elif isinstance(x, dict):            
-            if (x['mask'] is None):
-                x['mask'] = str(x['image']) #not sure why mask is None sometimes, this prevents preprocess crashing
+            if (x['mask'] is None and x['image'] is None):
+                x
+            elif (x['image'] is None):
+                x['image'] = str(x['mask'])
+            elif (x['mask'] is None):
+                x['mask'] = str(x['image']) #not sure why mask/mask is None sometimes, this prevents preprocess crashing
         elif x is not None:
             assert False, 'Unexpected type {0} in ImageMask preprocess()'.format(type(x))
 
