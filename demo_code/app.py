@@ -30,7 +30,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__)) #in case app.py is run 
 
 def parse_option():
     parser = argparse.ArgumentParser('SEEM Demo', add_help=False)
-    parser.add_argument('--conf_files', default=os.path.join(current_dir, "configs/seem/seem_focalt_lang.yaml"), metavar="FILE", help='path to config file', )
+    parser.add_argument('--conf_files', default=os.path.join(current_dir, "configs/seem/seem_focall_lang.yaml"), metavar="FILE", help='path to config file', )
     args = parser.parse_args()
 
     return args
